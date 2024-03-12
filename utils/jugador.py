@@ -7,28 +7,29 @@ class Jugador(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(pygame.image.load('imagenes/personajes/'+self.color+'/cuadrado.png'), (80, 70))
         self.rect = self.image.get_rect()
         self.rect.center = (1000, 300)
+        self.eleccion = False
         
     def update(self):
+        if self.eleccion:
+            self.velocidad_x = 0
+            self.velocidad_y = 0
 
-        self.velocidad_x = 0
-        self.velocidad_y = 0
+            teclas = pygame.key.get_pressed()
 
-        teclas = pygame.key.get_pressed()
+            if teclas[pygame.K_UP]:
+                self.velocidad_y -= 3
+            if teclas[pygame.K_DOWN]:
+                self.velocidad_y += 2.5
+            if teclas[pygame.K_LEFT]:
+                self.velocidad_x -= 3
+            if teclas[pygame.K_RIGHT]:
+                self.velocidad_x += 2.5
 
-        if teclas[pygame.K_UP]:
-            self.velocidad_y -= 3
-        if teclas[pygame.K_DOWN]:
-            self.velocidad_y += 2.5
-        if teclas[pygame.K_LEFT]:
-            self.velocidad_x -= 3
-        if teclas[pygame.K_RIGHT]:
-            self.velocidad_x += 2.5
+            self.rect.x += self.velocidad_x
+            self.rect.y += self.velocidad_y
 
-        self.rect.x += self.velocidad_x
-        self.rect.y += self.velocidad_y
-
-        self.rect.x = max(100, min(self.rect.x, 1020))
-        self.rect.y = max(170, min(self.rect.y, 530))
+            self.rect.x = max(100, min(self.rect.x, 1020))
+            self.rect.y = max(170, min(self.rect.y, 530))
 
     def muestraNombre(self, pantalla, nombre, fuente, color):
         letra = pygame.font.Font(fuente, 14)

@@ -1,12 +1,13 @@
 import pygame 
 
 class Seccion(pygame.sprite.Sprite):
-    def __init__(self, x, y, color):
+    def __init__(self, x, y, ancho, alto, color, id):
         super().__init__()
-        self.image = pygame.Surface((100, 100), pygame.SRCALPHA)
+        self.image = pygame.Surface((ancho, alto), pygame.SRCALPHA)
         self.image.fill(color)
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
+        self.id = id
 
     def muestraTexto(self, pantalla, texto, fuente, color):
         letra = pygame.font.Font(fuente, 32)
@@ -14,3 +15,6 @@ class Seccion(pygame.sprite.Sprite):
         rectangulo = superficie.get_rect()
         rectangulo.center = (800, 100)
         pantalla.blit(superficie, rectangulo)
+
+    def actualizaColor(self, color):
+        self.image.fill(color)
