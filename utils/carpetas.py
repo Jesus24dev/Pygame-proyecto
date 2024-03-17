@@ -13,8 +13,10 @@ VERDE = os.path.join(IMAGENES_JUGADOR, 'verde')
 #Fondo
 FONDO = os.path.join(IMAGENES, 'fondo')
 
-#Nivel de construccion
+#Niveles
+FORMAS = os.path.join(IMAGENES, 'formas')
 CONSTRUCCION = os.path.join(IMAGENES, 'construccion')
+CALCULO = os.path.join(IMAGENES, 'calculo')
 
 #Audio
 AUDIO = os.path.join(JUEGO, 'audio')

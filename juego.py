@@ -1,5 +1,5 @@
 import pygame, sys, os
-from utils import jugador, carpetas, color, secciones, figuras, construccion
+from utils import jugador, carpetas, color, secciones, construccion, calculo
 
 ANCHO = 1200
 ALTO = 800
@@ -24,7 +24,7 @@ SONIDO_CLICK = pygame.mixer.Sound(os.path.join(carpetas.AUDIO, 'drop_001.ogg'))
 SONIDO_GANAR = pygame.mixer.Sound(os.path.join(carpetas.AUDIO, 'ganar1.ogg'))
 
 #Inicializacion de clases
-jugador1 = jugador.Jugador(colorJugador)
+jugador1 = jugador.Jugador(colorJugador, (1000, 300))
 castillo = secciones.Seccion(260, 320, 100, 100, color.TRANSPARENTE, 1)
 prado = secciones.Seccion(450, 500, 100, 100, color.TRANSPARENTE, 2)
 nieve = secciones.Seccion(640, 290, 100, 100, color.TRANSPARENTE, 3)
@@ -42,6 +42,15 @@ puntoDesierto.add(desierto)
 
 #Clases nivel1
 construccionNivel1 = construccion.Nivel1(colorJugador)
+construccionNivel2 = construccion.Nivel2(colorJugador)
+construccionNivel3 = construccion.Nivel3(colorJugador)
+
+#clases nivel2
+jugador2 = jugador.Jugador(colorJugador, (600, 780))
+calculoNivel1 = calculo.Nivel1(colorJugador)
+
+spriteCalculo = pygame.sprite.Group()
+spriteCalculo.add(jugador2)
 
 #Agregando sprites
 sprites = pygame.sprite.Group()
@@ -72,14 +81,14 @@ def elegirModo(jugador, group, obj, texto, value):
                 PANTALLA.fill(color.ROJO)
             elif value == 2:
                 global estado
-                estado = 'nivel1'
+                estado = 'Construccion'
             elif value == 3:
                 PANTALLA.fill(color.AZUL)
             elif value == 4:
-                PANTALLA.fill(color.AMARILLO)
+                estado = 'Calculo'
 
 
-def jugarNivel(pantalla, nivel, x, y, x2, y2):
+def nivelConstruccion1(pantalla, nivel, xPrimerImagen, yPrimerImagen, xSegundaImagen, ySegundaImagen):
     pantalla.fill(color.CELESTE)
     pantalla.blit(nivel.image, (0,0))
     nivel.plantillas.update()
@@ -90,7 +99,7 @@ def jugarNivel(pantalla, nivel, x, y, x2, y2):
     estadoNivel = nivel.comprobarGanar(colisiones)
 
     if estadoNivel == 'Jugando':
-        pantalla.blit(nivel.imagenNormal, (x, y))
+        pantalla.blit(nivel.imagenNormal, (xPrimerImagen, yPrimerImagen))
         for sprite1, sprites2 in pygame.sprite.groupcollide(nivel.figuras, nivel.plantillas, False, False).items():
             for sprite2 in sprites2:
                 if sprite2.id not in colisiones:
@@ -99,19 +108,111 @@ def jugarNivel(pantalla, nivel, x, y, x2, y2):
                     nivel.figuras.remove(sprite1)
                     SONIDO_CLICK.play()
     elif estadoNivel == 'Ganar':
-        nivel.mostrarPantalla('Ganar')
-        pantalla.blit(nivel.imagenFeliz, (x2, y2))
-        SONIDO_GANAR.play()
-    elif estadoNivel == 'Perder':
-        nivel.mostrarPantalla('Perder')
+        nivel.mostrarPantalla()
+        pantalla.blit(nivel.imagenFeliz, (xSegundaImagen, ySegundaImagen))
+        if teclas[pygame.K_RETURN]:
+            global estado
+            estado = 'eleccion'
         
+colisiones = set()
+
+def nivelConstruccion2(pantalla, nivel):
+    pantalla.fill(color.CELESTE)
+    pantalla.blit(nivel.image, (0,0))
+    nivel.figuras.update()
+    nivel.figuras.draw(pantalla)
+    nivel.plantillas.update()
+    nivel.plantillas.draw(pantalla)
+    nivel.completado.update()
+    nivel.completado.draw(pantalla)
+
+    estadoNivel = nivel.comprobarGanar()
+
+    if estadoNivel == 'Jugando':
+        pantalla.blit(nivel.imagenNormal, (960, 245))
+        for sprite1, sprites2 in pygame.sprite.groupcollide(nivel.figuras, nivel.plantillas, False, False).items():
+                for sprite2 in sprites2:
+                    if sprite2.id == sprite1.id:
+                        nivel.figuras.remove(sprite1)
+                        nivel.plantillas.remove(sprite2)
+                        nivel.actualizaEstado(sprite2.id)
+                        SONIDO_CLICK.play()
+
+    elif estadoNivel == 'Ganar':
+        nivel.mostrarPantalla()
+        pantalla.blit(nivel.image, (0,0))
+        pantalla.blit(nivel.imagenFeliz, (570, 615))
+        if teclas[pygame.K_RETURN]:
+            global estado
+            estado = 'eleccion'
+
+def nivelConstruccion3(pantalla, nivel):
+    pantalla.fill(color.CELESTE)
+    pantalla.blit(nivel.image, (0,0))
+    nivel.figuras.update()
+    nivel.figuras.draw(pantalla)
+    nivel.plantillas.update()
+    nivel.plantillas.draw(pantalla)
+    nivel.completado.update()
+    nivel.completado.draw(pantalla)
+
+    estadoNivel = nivel.comprobarGanar()
+
+    if estadoNivel == 'Jugando':
+        for sprite1, sprites2 in pygame.sprite.groupcollide(nivel.figuras, nivel.plantillas, False, False).items():
+                    for sprite2 in sprites2:
+                        if sprite2.id == sprite1.id:
+                            nivel.figuras.remove(sprite1)
+                            nivel.plantillas.remove(sprite2)
+                            nivel.actualizaEstado(sprite2.id)
+                            SONIDO_CLICK.play()
+
+    elif estadoNivel == 'Ganar':
+        nivel.mostrarPantalla()
+        pantalla.blit(nivel.image, (0,0))
+        pantalla.blit(nivel.imagenFeliz, (870, 415))
+        if teclas[pygame.K_RETURN]:
+            global estado
+            estado = 'eleccion'
+
+def nivelCalculo1(nivel):
+    PANTALLA.fill(color.CELESTE)
+    PANTALLA.blit(nivel.image, (0, 0))
+    nivel.plantillas.update()
+    nivel.plantillas.draw(PANTALLA)
+    spriteCalculo.update()
+    spriteCalculo.draw(PANTALLA)
+
+    teclas = pygame.key.get_pressed()
+
+    estadoNivel = nivel.comprobarGanar()
+
+    if estadoNivel == 'Jugando':
+        for sprite1, sprites2 in pygame.sprite.groupcollide(spriteCalculo, nivel.plantillas, False, False).items():
+            for sprite2 in sprites2:
+                if teclas[pygame.K_SPACE]:
+                    estadoActual = nivel.comprobarEstado(sprite2.id)    
+                    if estadoActual == 'Error':
+                        nivel.muestraTextoError(FUENTE, PANTALLA)
+                    elif estadoActual == 'Ganar':
+                        estadoNivel = 'Ganar'
+                        sprite1.kill()
+    elif estadoNivel == 'Ganar':
+        nivel.mostrarPantalla()
+        PANTALLA.blit(nivel.image, (0,0))
+        PANTALLA.blit(nivel.imagenFeliz, (600, 370))
+        if teclas[pygame.K_RETURN]:
+            global estado
+            estado = 'eleccion'
+    
+
 
 estado = 'inicio'
-colisiones = set()
 
 while True:
 
     teclas = pygame.key.get_pressed()
+
     if estado == 'inicio':
         jugador1.eleccion = True  
         pantallaInicio()
@@ -119,11 +220,21 @@ while True:
             estado = 'eleccion'
     elif estado == 'eleccion':
         pantallaEleccion()
-    elif estado == 'nivel1':
-        jugarNivel(PANTALLA, construccionNivel1, 20, 600, 1000, 180)
+    elif estado == 'Construccion':
+        #nivelConstruccion1(PANTALLA, construccionNivel1, 20, 600, 1000, 180)
+        #nivelConstruccion2(PANTALLA, construccionNivel2)
+        nivelConstruccion3(PANTALLA, construccionNivel3)
+    elif estado == 'Calculo':
+        jugador2.eleccion = True 
+        jugador2.nivel = True 
+        nivelCalculo1(calculoNivel1)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
 
+    RELOJ.tick(60)
     pygame.display.flip()
+    pygame.display.update()
 
+
+    
