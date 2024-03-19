@@ -13,7 +13,7 @@ class Seccion(pygame.sprite.Sprite):
         letra = pygame.font.Font(fuente, 32)
         superficie = letra.render(texto, True, color)
         rectangulo = superficie.get_rect()
-        rectangulo.center = (800, 100)
+        rectangulo.center = (700, 100)
         pantalla.blit(superficie, rectangulo)
 
     def actualizaColor(self, color):

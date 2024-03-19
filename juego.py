@@ -1,5 +1,6 @@
-import pygame, sys, os
+import pygame, sys, os, login, menu1, menu2
 from utils import jugador, carpetas, color, secciones, construccion, calculo
+
 
 ANCHO = 1200
 ALTO = 800
@@ -10,10 +11,30 @@ RELOJ = pygame.time.Clock()
 INICIO = pygame.image.load(os.path.join(carpetas.FONDO, 'inicio.png'))
 FONDO = pygame.image.load(os.path.join(carpetas.FONDO, 'fondo.png'))
 FUENTE = pygame.font.match_font('courier', bold=True)
+PRESENTACION = [pygame.image.load(os.path.join(carpetas.PRESENTACION, 'Figuras_planas_page-0001.jpg')),
+                pygame.image.load(os.path.join(carpetas.PRESENTACION, 'Figuras_planas_page-0002.jpg')),
+                pygame.image.load(os.path.join(carpetas.PRESENTACION, 'Figuras_planas_page-0003.jpg')),
+                pygame.image.load(os.path.join(carpetas.PRESENTACION, 'Figuras_planas_page-0004.jpg')),
+                pygame.image.load(os.path.join(carpetas.PRESENTACION, 'Figuras_planas_page-0005.jpg')),
+                pygame.image.load(os.path.join(carpetas.PRESENTACION, 'Figuras_planas_page-0006.jpg')),
+                pygame.image.load(os.path.join(carpetas.PRESENTACION, 'Figuras_planas_page-0007.jpg')),
+                pygame.image.load(os.path.join(carpetas.PRESENTACION, 'Figuras_planas_page-0008.jpg')),
+                pygame.image.load(os.path.join(carpetas.PRESENTACION, 'Figuras_planas_page-0009.jpg')),
+                pygame.image.load(os.path.join(carpetas.PRESENTACION, 'Figuras_planas_page-0010.jpg')),
+                pygame.image.load(os.path.join(carpetas.PRESENTACION, 'Figuras_planas_page-0011.jpg')),
+                pygame.image.load(os.path.join(carpetas.PRESENTACION, 'Figuras_planas_page-0012.jpg')),
+                pygame.image.load(os.path.join(carpetas.PRESENTACION, 'Figuras_planas_page-0013.jpg')),
+                pygame.image.load(os.path.join(carpetas.PRESENTACION, 'Figuras_planas_page-0014.jpg')),
+                pygame.image.load(os.path.join(carpetas.PRESENTACION, 'Figuras_planas_page-0015.jpg')),]
+
+INFO = pygame.image.load(os.path.join(carpetas.PRESENTACION, 'info.jpg'))
+
+n = 0
+
+clic_anterior = False
 
 
-nombreUsuario = 'Jesusito24' #temporal
-colorJugador = 'amarillo' #temporal
+nombreUsuario, colorJugador = login.player_name, login.selected_color
 
 pygame.init()
 pygame.display.set_caption(TITULO)
@@ -22,6 +43,7 @@ pygame.display.set_caption(TITULO)
 pygame.mixer.init()
 SONIDO_CLICK = pygame.mixer.Sound(os.path.join(carpetas.AUDIO, 'drop_001.ogg'))
 SONIDO_GANAR = pygame.mixer.Sound(os.path.join(carpetas.AUDIO, 'ganar1.ogg'))
+
 
 #Inicializacion de clases
 jugador1 = jugador.Jugador(colorJugador, (1000, 300))
@@ -46,11 +68,12 @@ construccionNivel2 = construccion.Nivel2(colorJugador)
 construccionNivel3 = construccion.Nivel3(colorJugador)
 
 #clases nivel2
-jugador2 = jugador.Jugador(colorJugador, (600, 780))
-calculoNivel1 = calculo.Nivel1(colorJugador)
 
-spriteCalculo = pygame.sprite.Group()
-spriteCalculo.add(jugador2)
+calculoNivel1 = calculo.Nivel1(colorJugador)
+calculoNivel2 = calculo.Nivel2(colorJugador)
+calculoNivel3 = calculo.Nivel3(colorJugador)
+calculoNivel4 = calculo.Nivel4(colorJugador)
+calculoNivel5 = calculo.Nivel5(colorJugador)
 
 #Agregando sprites
 sprites = pygame.sprite.Group()
@@ -60,33 +83,56 @@ sprites.add(puntoCastillo, puntoPrado, puntoNieve, puntoDesierto, jugador1)
 def pantallaInicio():
     PANTALLA.blit(INICIO, (0, 0))
 
+def info():
+    PANTALLA.blit(INFO, (0, 0))
+    global estado
+    mouse = pygame.mouse.get_pressed()
+
+    if mouse[0]:
+        estado = 'eleccion'
+
 def pantallaEleccion():
     PANTALLA.fill(color.CELESTE)
     PANTALLA.blit(FONDO, (100, 100))
     sprites.update()
     sprites.draw(PANTALLA)
     jugador1.muestraNombre(PANTALLA, nombreUsuario, FUENTE, color.NEGRO)
-    elegirModo(jugador1, puntoCastillo, castillo, 'Este es el mensaje del castillo', 1)
-    elegirModo(jugador1, puntoPrado, prado, 'Este es el mensaje del prado', 2)
-    elegirModo(jugador1, puntoNieve, nieve, 'Este es el mensaje de la nieve', 3)
-    elegirModo(jugador1, puntoDesierto, desierto, 'Este es el mensaje del desierto', 4)
+    elegirModo(jugador1, puntoCastillo, castillo, 'Presiona ESPACIO para ver INFORMACION', 1)
+    elegirModo(jugador1, puntoPrado, prado, 'Presiona ESPACIO para jugar CONSTRUCCION', 2)
+    elegirModo(jugador1, puntoNieve, nieve, 'Presiona ESPACIO para VER GUIA', 3)
+    elegirModo(jugador1, puntoDesierto, desierto, 'Presiona ESPACIO para jugar CALCULOS', 4)
 
 def elegirModo(jugador, group, obj, texto, value):
     if pygame.sprite.spritecollide(jugador, group, False):
         obj.muestraTexto(PANTALLA, texto, FUENTE, color.NEGRO)
-
+        global estado
         teclas = pygame.key.get_pressed()
-        if teclas[pygame.K_RETURN]:
+        if teclas[pygame.K_SPACE]:
             if value == 1:
-                PANTALLA.fill(color.ROJO)
+                estado = 'Info'
             elif value == 2:
-                global estado
                 estado = 'Construccion'
             elif value == 3:
-                PANTALLA.fill(color.AZUL)
+                estado = 'Presentacion'
             elif value == 4:
                 estado = 'Calculo'
 
+def presentacion():
+    global n
+    global estado
+    global clic_anterior
+    
+    PANTALLA.blit(PRESENTACION[n], (0, 0))
+    mouse = pygame.mouse.get_pressed()  
+    
+    if mouse[0] and not clic_anterior:
+        n += 1
+        clic_anterior = True
+    clic_anterior = mouse[0]
+    
+    if n >= 14:
+        estado = 'eleccion'
+        n = 0
 
 def nivelConstruccion1(pantalla, nivel, xPrimerImagen, yPrimerImagen, xSegundaImagen, ySegundaImagen):
     pantalla.fill(color.CELESTE)
@@ -175,15 +221,16 @@ def nivelConstruccion3(pantalla, nivel):
             global estado
             estado = 'eleccion'
 
-def nivelCalculo1(nivel):
+def nivelCalculo1(nivel, coor):
     PANTALLA.fill(color.CELESTE)
     PANTALLA.blit(nivel.image, (0, 0))
     nivel.plantillas.update()
     nivel.plantillas.draw(PANTALLA)
     spriteCalculo.update()
     spriteCalculo.draw(PANTALLA)
-
+    jugador2.muestraNombre(PANTALLA, nombreUsuario, FUENTE, color.NEGRO)
     teclas = pygame.key.get_pressed()
+    mouse = pygame.mouse.get_pressed()
 
     estadoNivel = nivel.comprobarGanar()
 
@@ -200,8 +247,8 @@ def nivelCalculo1(nivel):
     elif estadoNivel == 'Ganar':
         nivel.mostrarPantalla()
         PANTALLA.blit(nivel.image, (0,0))
-        PANTALLA.blit(nivel.imagenFeliz, (600, 370))
-        if teclas[pygame.K_RETURN]:
+        PANTALLA.blit(nivel.imagenFeliz, coor)
+        if mouse[0]:
             global estado
             estado = 'eleccion'
     
@@ -210,7 +257,6 @@ def nivelCalculo1(nivel):
 estado = 'inicio'
 
 while True:
-
     teclas = pygame.key.get_pressed()
 
     if estado == 'inicio':
@@ -218,16 +264,43 @@ while True:
         pantallaInicio()
         if teclas[pygame.K_RETURN]:
             estado = 'eleccion'
+    elif estado == 'Info':
+        info()
     elif estado == 'eleccion':
         pantallaEleccion()
+    elif estado == 'Presentacion':
+        presentacion()
     elif estado == 'Construccion':
-        #nivelConstruccion1(PANTALLA, construccionNivel1, 20, 600, 1000, 180)
-        #nivelConstruccion2(PANTALLA, construccionNivel2)
-        nivelConstruccion3(PANTALLA, construccionNivel3)
+        opcion_menu = menu1.show_menu(PANTALLA)
+        if opcion_menu > 0:
+            estado = 'nivelConstruccion'
+    elif estado == 'nivelConstruccion':
+        if opcion_menu == 1:
+            nivelConstruccion1(PANTALLA, construccionNivel1, 20, 600, 1000, 180)
+        elif opcion_menu == 2:
+            nivelConstruccion2(PANTALLA, construccionNivel2)
+        elif opcion_menu == 3:
+            nivelConstruccion3(PANTALLA, construccionNivel3)
     elif estado == 'Calculo':
-        jugador2.eleccion = True 
-        jugador2.nivel = True 
-        nivelCalculo1(calculoNivel1)
+        opcion_menu2 = menu2.show_menu(PANTALLA)
+        if opcion_menu2 > 0:
+            estado = 'nivelCalculo'
+            jugador2 = jugador.Jugador(colorJugador, (600, 780))
+            jugador2.eleccion = True 
+            jugador2.nivel = True 
+            spriteCalculo = pygame.sprite.Group()
+            spriteCalculo.add(jugador2)
+    elif estado == 'nivelCalculo':    
+        if opcion_menu2 == 1:
+            nivelCalculo1(calculoNivel1, (600, 370))
+        elif opcion_menu2 == 2:
+            nivelCalculo1(calculoNivel2, (500, 600))
+        elif opcion_menu2 == 3:
+            nivelCalculo1(calculoNivel3, (520, 600))
+        elif opcion_menu2 == 4:
+            nivelCalculo1(calculoNivel4, (520, 600))
+        elif opcion_menu2 == 5:
+            nivelCalculo1(calculoNivel5, (520, 600))
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
