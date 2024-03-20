@@ -19,6 +19,3 @@ CONSTRUCCION = os.path.join(IMAGENES, 'construccion')
 CALCULO = os.path.join(IMAGENES, 'calculo')
 PRESENTACION = os.path.join(IMAGENES, 'presentacion')
 
-#Audio
-AUDIO = os.path.join(JUEGO, 'audio')
-

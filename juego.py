@@ -1,7 +1,6 @@
 import pygame, sys, os, login, menu1, menu2
 from utils import jugador, carpetas, color, secciones, construccion, calculo
 
-
 ANCHO = 1200
 ALTO = 800
 FPS = 30
@@ -33,17 +32,10 @@ n = 0
 
 clic_anterior = False
 
-
 nombreUsuario, colorJugador = login.player_name, login.selected_color
 
 pygame.init()
 pygame.display.set_caption(TITULO)
-
-#Sonidos 
-pygame.mixer.init()
-SONIDO_CLICK = pygame.mixer.Sound(os.path.join(carpetas.AUDIO, 'drop_001.ogg'))
-SONIDO_GANAR = pygame.mixer.Sound(os.path.join(carpetas.AUDIO, 'ganar1.ogg'))
-
 
 #Inicializacion de clases
 jugador1 = jugador.Jugador(colorJugador, (1000, 300))
@@ -63,9 +55,7 @@ puntoDesierto = pygame.sprite.GroupSingle()
 puntoDesierto.add(desierto)
 
 #Clases nivel1
-construccionNivel1 = construccion.Nivel1(colorJugador)
-construccionNivel2 = construccion.Nivel2(colorJugador)
-construccionNivel3 = construccion.Nivel3(colorJugador)
+
 
 #clases nivel2
 
@@ -111,7 +101,7 @@ def elegirModo(jugador, group, obj, texto, value):
             if value == 1:
                 estado = 'Info'
             elif value == 2:
-                estado = 'Construccion'
+                estado = 'creaClases'
             elif value == 3:
                 estado = 'Presentacion'
             elif value == 4:
@@ -152,7 +142,6 @@ def nivelConstruccion1(pantalla, nivel, xPrimerImagen, yPrimerImagen, xSegundaIm
                     nivel.actualizaEstado(sprite2.id)
                     colisiones.add(sprite2.id)
                     nivel.figuras.remove(sprite1)
-                    SONIDO_CLICK.play()
     elif estadoNivel == 'Ganar':
         nivel.mostrarPantalla()
         pantalla.blit(nivel.imagenFeliz, (xSegundaImagen, ySegundaImagen))
@@ -182,7 +171,6 @@ def nivelConstruccion2(pantalla, nivel):
                         nivel.figuras.remove(sprite1)
                         nivel.plantillas.remove(sprite2)
                         nivel.actualizaEstado(sprite2.id)
-                        SONIDO_CLICK.play()
 
     elif estadoNivel == 'Ganar':
         nivel.mostrarPantalla()
@@ -211,7 +199,6 @@ def nivelConstruccion3(pantalla, nivel):
                             nivel.figuras.remove(sprite1)
                             nivel.plantillas.remove(sprite2)
                             nivel.actualizaEstado(sprite2.id)
-                            SONIDO_CLICK.play()
 
     elif estadoNivel == 'Ganar':
         nivel.mostrarPantalla()
@@ -270,6 +257,11 @@ while True:
         pantallaEleccion()
     elif estado == 'Presentacion':
         presentacion()
+    elif estado == 'creaClases':
+        construccionNivel1 = construccion.Nivel1(colorJugador)
+        construccionNivel2 = construccion.Nivel2(colorJugador)
+        construccionNivel3 = construccion.Nivel3(colorJugador)
+        estado = 'Construccion'
     elif estado == 'Construccion':
         opcion_menu = menu1.show_menu(PANTALLA)
         if opcion_menu > 0:
